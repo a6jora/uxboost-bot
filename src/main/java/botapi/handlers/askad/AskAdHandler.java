@@ -5,6 +5,7 @@ import botapi.InputMessageHandler;
 import cache.UserAdCache;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AskAdHandler implements InputMessageHandler {
     private UserAdCache userAdCache;
@@ -15,8 +16,8 @@ public class AskAdHandler implements InputMessageHandler {
 
 
     @Override
-    public SendMessage handle(Message message) {
-        return processUsersInput(message);
+    public SendMessage handle(Update update) {
+        return processUsersInput(update);
     }
 
     @Override
@@ -24,7 +25,8 @@ public class AskAdHandler implements InputMessageHandler {
         return BotState.ASK_START;
     }
 
-    private SendMessage processUsersInput(Message inputMsg) {
+    private SendMessage processUsersInput(Update update) {
+        Message inputMsg = update.getMessage();
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
 

@@ -19,13 +19,14 @@ public class TelegramFacade {
 
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
-            replyMessage = handleInputMessage(message);
+            replyMessage = handleInputMessage(update);
         }
         System.out.println("message HandleUpdate");
         return replyMessage;
     }
 
-    private SendMessage handleInputMessage(Message message) {
+    private SendMessage handleInputMessage(Update update) {
+        Message message = update.getMessage();
         System.out.println("message HandleInput");
         String inputMsg = message.getText();
         int userId = message.getFrom().getId();
@@ -47,7 +48,7 @@ public class TelegramFacade {
 
         userAdCache.setUserCurrentBotState(userId, botState);
 
-        replyMessage = botStateContext.processInputMessage(botState, message);
+        replyMessage = botStateContext.processInputMessage(botState, update);
 
         return replyMessage;
     }

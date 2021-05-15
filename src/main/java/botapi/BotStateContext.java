@@ -5,6 +5,7 @@ import botapi.handlers.fillinfad.FillingAdHandler;
 import cache.UserAdCache;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,9 +30,9 @@ public class BotStateContext {
         messageHandlers.add(new FillingAdHandler(userAdCache));
         messageHandlers.forEach(handler -> this.messageHandlers.put(handler.getHandlerName(),handler));
     }
-    public SendMessage processInputMessage(BotState currentState, Message message){
+    public SendMessage processInputMessage(BotState currentState, Update update){
         InputMessageHandler currentMessageHandler = findMessageHandler(currentState);
-        return currentMessageHandler.handle(message);
+        return currentMessageHandler.handle(update);
     }
 
     private InputMessageHandler findMessageHandler(BotState currentState){

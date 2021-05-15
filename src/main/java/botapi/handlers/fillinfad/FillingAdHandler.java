@@ -6,6 +6,7 @@ import cache.UserAdCache;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -20,11 +21,11 @@ public class FillingAdHandler implements InputMessageHandler {
     }
 
     @Override
-    public SendMessage handle(Message message) {
-        if (userAdCache.getUsersCurrentBotState(message.getFrom().getId()).equals(BotState.ASK_START)) {
-            userAdCache.setUserCurrentBotState(message.getFrom().getId(), BotState.ASK_AD);
+    public SendMessage handle(Update update) {
+        if (userAdCache.getUsersCurrentBotState(update.getMessage().getFrom().getId()).equals(BotState.ASK_START)) {
+            userAdCache.setUserCurrentBotState(update.getMessage().getFrom().getId(), BotState.ASK_AD);
         }
-        return processUsersInput(message);
+        return processUsersInput(update);
     }
 
     @Override
@@ -32,7 +33,8 @@ public class FillingAdHandler implements InputMessageHandler {
         return BotState.ASK_START;
     }
 
-    private SendMessage processUsersInput(Message inputMsg) {
+    private SendMessage processUsersInput(Update update) {
+        Message inputMsg = update.getMessage();
         String usersAnswer = inputMsg.getText();
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
