@@ -1,0 +1,11 @@
+Message{
+messageId=54,
+
+ replyToMessage=Message{messageId=36, from=User{id=777000, firstName='Telegram', isBot=false, lastName='null', userName='null', languageCode='null'},
+  date=1619096532,
+forwardFromChat=Chat{id=-1001256495856, type='channel', title='Test_channal', firstName='null', lastName='null', userName='raising_bot_test', allMembersAreAdministrators=null, photo=null, description='null', inviteLink='null', pinnedMessage=null, stickerSetName='null', canSetStickerSet=null},
+forwardDate=1619096529, text='123123132', entities=null, captionEntities=null, audio=null, document=null, photo=null, sticker=null, video=null, contact=null, location=null, venue=null, pinnedMessage=null, newChatMembers=null, leftChatMember=null, newChatTitle='null', newChatPhoto=null, deleteChatPhoto=null, groupchatCreated=null, replyToMessage=null, voice=null, caption='null', superGroupCreated=null, channelChatCreated=null, migrateToChatId=null, migrateFromChatId=null, editDate=null, game=null, forwardFromMessageId=36, invoice=null, successfulPayment=null, videoNote=null, authorSignature='null', forwardSignature='null', mediaGroupId='null', connectedWebsite='null', passportData=null},
+     voice=null, caption='null', superGroupCreated=null, channelChatCreated=null, migrateToChatId=null, migrateFromChatId=null, editDate=null, game=null, forwardFromMessageId=null, invoice=null, successfulPayment=null, videoNote=null, authorSignature='null', forwardSignature='null', mediaGroupId='null', connectedWebsite='null', passportData=null}
+
+
+if (inMessage.getReplyToMessage().getText().equals("123123132")) {
