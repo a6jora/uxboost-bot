@@ -23,7 +23,7 @@ public class FillingAdHandler implements InputMessageHandler {
     @Override
     public SendMessage handle(Update update) {
         if (userAdCache.getUsersCurrentBotState(update.getMessage().getFrom().getId()).equals(BotState.ASK_START)) {
-            userAdCache.setUserCurrentBotState(update.getMessage().getFrom().getId(), BotState.ASK_AD);
+            userAdCache.setUserCurrentBotState(update.getMessage().getFrom().getId(), BotState.ASK_OPTION);
         }
         return processUsersInput(update);
     }

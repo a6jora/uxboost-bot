@@ -18,7 +18,7 @@ public class UserAdCache implements AdCache{
     public BotState getUsersCurrentBotState(int userId) {
         BotState botState = usersBotStates.get(userId);
         if (botState == null){
-            botState = BotState.ASK_AD;
+            botState = BotState.ASK_OPTION;
         }
         return botState;
     }

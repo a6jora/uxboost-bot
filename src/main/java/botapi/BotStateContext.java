@@ -45,6 +45,8 @@ public class BotStateContext {
     private boolean isFillingAd(BotState currentState){
         switch (currentState){
             case ASK_START:
+            case ASK_OPTION:
+            case ASK_TO_SEND:
             case ASK_AD:
             case ASK_GLADS:
             case ASK_TIME_FOR:
