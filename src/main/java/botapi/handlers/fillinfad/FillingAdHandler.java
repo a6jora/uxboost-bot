@@ -5,6 +5,7 @@ import botapi.InputMessageHandler;
 import cache.UserAdCache;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -22,6 +23,12 @@ public class FillingAdHandler implements InputMessageHandler {
 
     @Override
     public SendMessage handle(Update update) {
+        if (update.hasCallbackQuery()) {
+            if (userAdCache.getUsersCurrentBotState(update.getCallbackQuery().getFrom().getId()).equals(BotState.ASK_START)) {
+                userAdCache.setUserCurrentBotState(update.getCallbackQuery().getFrom().getId(), BotState.ASK_OPTION);
+            }
+            return processUsersInput(update);
+        }
         if (userAdCache.getUsersCurrentBotState(update.getMessage().getFrom().getId()).equals(BotState.ASK_START)) {
             userAdCache.setUserCurrentBotState(update.getMessage().getFrom().getId(), BotState.ASK_OPTION);
         }
@@ -34,20 +41,51 @@ public class FillingAdHandler implements InputMessageHandler {
     }
 
     private SendMessage processUsersInput(Update update) {
+        SendMessage replyToUser = null;
+
+        if (update.hasCallbackQuery()) {
+            int userId = update.getCallbackQuery().getFrom().getId();
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+            if (callbackQuery.getData().equals("buttonYes")) {
+                replyToUser = new SendMessage(chatId,
+                        "Ваше объявление:\n" + userAdCache.getUserAd(userId).toString() + "\nразмещено");
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_START);
+                replyToUser = new SendMessage(chatId, "Выберите команду:");
+                replyToUser.setReplyMarkup(getInlineAskMessageButton());
+            } else if (callbackQuery.getData().equals("buttonAd")) {
+
+                replyToUser = new SendMessage(chatId, "Текст объявления");
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_GLADS);
+            }
+            else if (callbackQuery.getData().equals("buttonComment")) {
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+                replyToUser = getComments(chatId);
+                replyToUser = new SendMessage(chatId, "Выберите команду:");
+                replyToUser.setReplyMarkup(getInlineAskMessageButton());
+            }
+            else {
+                replyToUser = new SendMessage(chatId, "Выберите команду:");
+
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+            }
+            return replyToUser;
+        }
+
         Message inputMsg = update.getMessage();
         String usersAnswer = inputMsg.getText();
+
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
+
 
         UserAd ad = userAdCache.getUserAd(userId);
         BotState botState = userAdCache.getUsersCurrentBotState(userId);
 
-        SendMessage replyToUser = null;
 
         if (botState.equals(BotState.ASK_OPTION)) {
             replyToUser = new SendMessage(chatId, "Выберите команду:");
-
-            userAdCache.setUserCurrentBotState(userId, BotState.ASK_AD);
+            replyToUser.setReplyMarkup(getInlineAskMessageButton());
         }
         if (botState.equals(BotState.ASK_AD)) {
             replyToUser = new SendMessage(chatId, "Текст объявления");
@@ -92,22 +130,17 @@ public class FillingAdHandler implements InputMessageHandler {
         if (botState.equals(BotState.ASK_TO_POST)) {
             ad.setDeadline(inputMsg.getText());
             replyToUser = new SendMessage(chatId,
-                    "Ваше объявление:\n"+userAdCache.getUserAd(userId).toString()+"\nразмещено");
-            replyToUser.setReplyMarkup(getInlineMessageButton());
-            userAdCache.setUserCurrentBotState(userId, BotState.ASK_TO_SEND);
-        }
-        if (botState.equals(BotState.ASK_TO_SEND)) {
-            ad.setDeadline(inputMsg.getText());
-            replyToUser = new SendMessage(chatId,
-                    "Ваше объявление:\n"+userAdCache.getUserAd(userId).toString()+"\nразмещено");
+                    "Ваше объявление:\n" + userAdCache.getUserAd(userId).toString() + "\nРазместить?");
+            replyToUser.setReplyMarkup(getInlineSendMessageButton());
 
-            userAdCache.setUserCurrentBotState(userId, BotState.ASK_START);
         }
+
         userAdCache.saveUserAd(userId, ad);
         return replyToUser;
     }
 
-    private InlineKeyboardMarkup getInlineMessageButton(){
+
+    private InlineKeyboardMarkup getInlineSendMessageButton() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton buttonYes = new InlineKeyboardButton().setText("Да");
         InlineKeyboardButton buttonNo = new InlineKeyboardButton().setText("Нет");
@@ -121,5 +154,24 @@ public class FillingAdHandler implements InputMessageHandler {
         list.add(row);
         inlineKeyboardMarkup.setKeyboard(list);
         return inlineKeyboardMarkup;
+    }
+    private InlineKeyboardMarkup getInlineAskMessageButton() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton buttonAd = new InlineKeyboardButton().setText("Добавить Объявление");
+        InlineKeyboardButton buttonComment = new InlineKeyboardButton().setText("Комментарии");
+        buttonAd.setCallbackData("buttonAd");
+        buttonComment.setCallbackData("buttonComment");
+
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(buttonComment);
+        row.add(buttonAd);
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        list.add(row);
+        inlineKeyboardMarkup.setKeyboard(list);
+        return inlineKeyboardMarkup;
+    }
+
+    private SendMessage getComments(long chatId){
+        return new SendMessage(chatId, "comments");
     }
 }

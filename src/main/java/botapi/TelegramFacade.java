@@ -18,7 +18,7 @@ public class TelegramFacade {
         SendMessage replyMessage = null;
 
         Message message = update.getMessage();
-        if (message != null && message.hasText()) {
+        if (message != null && message.hasText()||update.hasCallbackQuery()) {
             replyMessage = handleInputMessage(update);
         }
         System.out.println("message HandleUpdate");
@@ -28,8 +28,15 @@ public class TelegramFacade {
     private SendMessage handleInputMessage(Update update) {
         Message message = update.getMessage();
         System.out.println("message HandleInput");
-        String inputMsg = message.getText();
-        int userId = message.getFrom().getId();
+        String inputMsg = "null";
+        int userId ;
+        if (update.hasCallbackQuery()){
+            userId = update.getCallbackQuery().getFrom().getId();
+        }
+        else {
+            message.getText();
+            userId = message.getFrom().getId();
+        }
         BotState botState = BotState.ASK_START;
         SendMessage replyMessage = null;
 
