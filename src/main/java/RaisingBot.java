@@ -32,10 +32,14 @@ public class RaisingBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         System.out.println("update getted");
-        SendMessage replyMessageToUser = telegramFacade.handleUpdate(update);
+        ArrayList<SendMessage> replyMessageToUser = telegramFacade.handleUpdate(update);
 
         try {
-            execute(replyMessageToUser);
+            for (SendMessage message :
+                    replyMessageToUser) {
+                execute(message);
+            }
+
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

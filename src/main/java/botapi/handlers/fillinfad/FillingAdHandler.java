@@ -22,11 +22,12 @@ public class FillingAdHandler implements InputMessageHandler {
     }
 
     @Override
-    public SendMessage handle(Update update) {
+    public ArrayList<SendMessage> handle(Update update) {
         if (update.hasCallbackQuery()) {
             if (userAdCache.getUsersCurrentBotState(update.getCallbackQuery().getFrom().getId()).equals(BotState.ASK_START)) {
                 userAdCache.setUserCurrentBotState(update.getCallbackQuery().getFrom().getId(), BotState.ASK_OPTION);
             }
+
             return processUsersInput(update);
         }
         if (userAdCache.getUsersCurrentBotState(update.getMessage().getFrom().getId()).equals(BotState.ASK_START)) {
@@ -40,7 +41,8 @@ public class FillingAdHandler implements InputMessageHandler {
         return BotState.ASK_START;
     }
 
-    private SendMessage processUsersInput(Update update) {
+    private ArrayList<SendMessage> processUsersInput(Update update) {
+        ArrayList<SendMessage> messageList = new ArrayList<>();
         SendMessage replyToUser = null;
 
         if (update.hasCallbackQuery()) {
@@ -69,7 +71,8 @@ public class FillingAdHandler implements InputMessageHandler {
 
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
             }
-            return replyToUser;
+            messageList.add(replyToUser);
+            return messageList;
         }
 
         Message inputMsg = update.getMessage();
@@ -136,7 +139,8 @@ public class FillingAdHandler implements InputMessageHandler {
         }
 
         userAdCache.saveUserAd(userId, ad);
-        return replyToUser;
+        messageList.add(replyToUser);
+        return messageList;
     }
 
 

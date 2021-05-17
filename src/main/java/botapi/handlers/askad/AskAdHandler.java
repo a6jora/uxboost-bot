@@ -7,6 +7,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.ArrayList;
+
 public class AskAdHandler implements InputMessageHandler {
     private UserAdCache userAdCache;
 
@@ -16,7 +18,7 @@ public class AskAdHandler implements InputMessageHandler {
 
 
     @Override
-    public SendMessage handle(Update update) {
+    public ArrayList<SendMessage> handle(Update update) {
         return processUsersInput(update);
     }
 
@@ -25,7 +27,8 @@ public class AskAdHandler implements InputMessageHandler {
         return BotState.ASK_START;
     }
 
-    private SendMessage processUsersInput(Update update) {
+    private ArrayList<SendMessage> processUsersInput(Update update) {
+        ArrayList<SendMessage> messageList = new ArrayList<>();
         Message inputMsg = update.getMessage();
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
@@ -33,7 +36,7 @@ public class AskAdHandler implements InputMessageHandler {
         SendMessage replyToUser = new SendMessage(chatId,
                 "Бот для размещения объявлений");
         userAdCache.setUserCurrentBotState(userId,BotState.ASK_START);
-
-        return replyToUser;
+        messageList.add(replyToUser);
+        return messageList;
     }
 }

@@ -5,6 +5,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.ArrayList;
+
 public class TelegramFacade {
     private BotStateContext botStateContext;
     private UserAdCache userAdCache;
@@ -14,18 +16,20 @@ public class TelegramFacade {
         this.userAdCache = userAdCache;
     }
 
-    public SendMessage handleUpdate(Update update){
+    public ArrayList<SendMessage> handleUpdate(Update update){
         SendMessage replyMessage = null;
-
+        ArrayList<SendMessage> messageArrayList = new ArrayList<>();
         Message message = update.getMessage();
         if (message != null && message.hasText()||update.hasCallbackQuery()) {
-            replyMessage = handleInputMessage(update);
+            messageArrayList = handleInputMessage(update);
         }
         System.out.println("message HandleUpdate");
-        return replyMessage;
+
+        return messageArrayList;
     }
 
-    private SendMessage handleInputMessage(Update update) {
+    private ArrayList<SendMessage> handleInputMessage(Update update) {
+        ArrayList<SendMessage> messagesList = new ArrayList<>();
         Message message = update.getMessage();
         System.out.println("message HandleInput");
         String inputMsg = "null";
@@ -55,8 +59,8 @@ public class TelegramFacade {
 
         userAdCache.setUserCurrentBotState(userId, botState);
 
-        replyMessage = botStateContext.processInputMessage(botState, update);
+        messagesList = botStateContext.processInputMessage(botState, update);
 
-        return replyMessage;
+        return messagesList;
     }
 }

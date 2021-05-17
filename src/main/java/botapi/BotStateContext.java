@@ -30,7 +30,7 @@ public class BotStateContext {
         messageHandlers.add(new FillingAdHandler(userAdCache));
         messageHandlers.forEach(handler -> this.messageHandlers.put(handler.getHandlerName(),handler));
     }
-    public SendMessage processInputMessage(BotState currentState, Update update){
+    public ArrayList<SendMessage> processInputMessage(BotState currentState, Update update){
         InputMessageHandler currentMessageHandler = findMessageHandler(currentState);
         return currentMessageHandler.handle(update);
     }
