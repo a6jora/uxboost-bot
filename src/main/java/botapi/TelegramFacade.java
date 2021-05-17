@@ -20,9 +20,11 @@ public class TelegramFacade {
         SendMessage replyMessage = null;
         ArrayList<SendMessage> messageArrayList = new ArrayList<>();
         Message message = update.getMessage();
-        if (message != null && message.hasText()||update.hasCallbackQuery()) {
+
+        if (message != null && message.hasText()&&(!message.isSuperGroupMessage()||message.isReply())||update.hasCallbackQuery()) {
             messageArrayList = handleInputMessage(update);
         }
+
         System.out.println("message HandleUpdate");
 
         return messageArrayList;

@@ -11,11 +11,17 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Handler;
 
 public class FillingAdHandler implements InputMessageHandler {
     private UserAdCache userAdCache;
+    private HashMap<String, ArrayList<String>> comments = new HashMap<>();
+    private HashMap<String, Long> ads = new HashMap<>();
 
     public FillingAdHandler(UserAdCache userAdCache) {
         this.userAdCache = userAdCache;
@@ -52,21 +58,22 @@ public class FillingAdHandler implements InputMessageHandler {
             if (callbackQuery.getData().equals("buttonYes")) {
                 replyToUser = new SendMessage(chatId,
                         "Ваше объявление:\n" + userAdCache.getUserAd(userId).toString() + "\nразмещено");
+                messageList.add(replyToUser);
+                messageList.add(sendAdToChannel(userAdCache.getUserAd(userId).toString(), chatId));
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_START);
                 replyToUser = new SendMessage(chatId, "Выберите команду:");
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
+
             } else if (callbackQuery.getData().equals("buttonAd")) {
 
                 replyToUser = new SendMessage(chatId, "Текст объявления");
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_GLADS);
-            }
-            else if (callbackQuery.getData().equals("buttonComment")) {
+            } else if (callbackQuery.getData().equals("buttonComment")) {
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
-                replyToUser = getComments(chatId);
+                messageList = getComments(chatId);
                 replyToUser = new SendMessage(chatId, "Выберите команду:");
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
-            }
-            else {
+            } else {
                 replyToUser = new SendMessage(chatId, "Выберите команду:");
 
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
@@ -78,8 +85,24 @@ public class FillingAdHandler implements InputMessageHandler {
         Message inputMsg = update.getMessage();
         String usersAnswer = inputMsg.getText();
 
+
+        if (inputMsg.isReply()) {
+            System.out.println("=+++===" + inputMsg.getText());
+            String reply = inputMsg.getReplyToMessage().getText()+"\n";
+            System.out.println("\n+===" + reply+"****\n");
+            try {
+                comments.get(reply).add(inputMsg.getText());
+            } catch (Exception ex) {
+                System.out.println("didnt work");
+            }
+            System.out.println("comment: " + inputMsg.getText() + " to: " + reply + " is added");
+            replyToUser = new SendMessage(ads.get(reply), inputMsg.getText());
+            messageList.add(replyToUser);
+            return messageList;
+        }
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
+
 
 
         UserAd ad = userAdCache.getUserAd(userId);
@@ -159,6 +182,7 @@ public class FillingAdHandler implements InputMessageHandler {
         inlineKeyboardMarkup.setKeyboard(list);
         return inlineKeyboardMarkup;
     }
+
     private InlineKeyboardMarkup getInlineAskMessageButton() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton buttonAd = new InlineKeyboardButton().setText("Добавить Объявление");
@@ -175,7 +199,46 @@ public class FillingAdHandler implements InputMessageHandler {
         return inlineKeyboardMarkup;
     }
 
-    private SendMessage getComments(long chatId){
-        return new SendMessage(chatId, "comments");
+    public SendMessage sendAdToChannel(String adText, Long chatId) {
+
+        SendMessage outMessageToChannel = new SendMessage();
+        BigInteger id = new BigInteger("-1001256495856");
+        outMessageToChannel.setChatId(id.longValue());
+        outMessageToChannel.setText(adText);
+
+        comments.put(adText, new ArrayList<>());
+        System.out.println("===\n" + adText+"====\n");
+        ads.put(adText, chatId);
+        System.out.println("ad is added:" + adText+" with" + chatId);
+        return outMessageToChannel;
+    }
+
+    private ArrayList<SendMessage> getComments(long chatId) {
+        ArrayList<SendMessage> messages = new ArrayList<>();
+        System.out.println("problem part");
+        SendMessage outMessage = new SendMessage();
+        outMessage.setChatId(chatId);
+        try {
+            for (Map.Entry<String, Long> adWithId :
+                    ads.entrySet()) {
+                System.out.println("ad: "+ adWithId.getKey()+ " id: "+ adWithId.getValue());
+                if (adWithId.getValue().equals(chatId)) {
+                    ArrayList<String> list = comments.get(adWithId.getKey());
+                    StringBuilder row = new StringBuilder(adWithId.getKey());
+                    row.append(":");
+                    for (String comment :
+                            list) {
+                        System.out.println(comment);
+                        row.append("\n-");
+                        row.append(comment);
+                    }
+                    outMessage.setText(row.toString());
+                    messages.add(outMessage);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return messages;
     }
 }

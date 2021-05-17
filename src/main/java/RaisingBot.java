@@ -32,9 +32,11 @@ public class RaisingBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         System.out.println("update getted");
+
         ArrayList<SendMessage> replyMessageToUser = telegramFacade.handleUpdate(update);
 
         try {
+
             for (SendMessage message :
                     replyMessageToUser) {
                 execute(message);
@@ -106,26 +108,26 @@ public class RaisingBot extends TelegramLongPollingBot {
 //                Message inMessage = update.getMessage();
 //                if (update.getMessage().getText().toLowerCase().startsWith("/ad ")) {
 //                //Извлекаем объект входящего сообщения
-//                try {
-//                sendAd(inMessage);
-//                } catch (Exception e) {
-//                e.printStackTrace();
-//                }
+//                  try {
+//                     sendAd(inMessage);
+//                   } catch (Exception e) {
+//                    e.printStackTrace();
+//                  }
 //                }
 //                if (update.getMessage().getText().toLowerCase().startsWith("/wtf ")) {
-//                System.out.println("use /comments");
-//                try{
-//                for (int i = 0; i < 20; i++) {
-//        String string = update.getChannelPost().getEntities().get(i).getText();
-//        SendMessage outMessage = new SendMessage();
-//        outMessage.setChatId(inMessage.getChatId());
-//        outMessage.setText(string);
-//        execute(outMessage);
-//        }
-//        }catch (Exception e ){
-//        e.printStackTrace();
-//        }
-//        }
+    //                System.out.println("use /comments");
+    //                try{
+    //                for (int i = 0; i < 20; i++) {
+    //                  String string = update.getChannelPost().getEntities().get(i).getText();
+    //                  SendMessage outMessage = new SendMessage();
+    //                  outMessage.setChatId(inMessage.getChatId());
+    //                  outMessage.setText(string);
+    //                  execute(outMessage);
+//                    }
+            //        }catch (Exception e ){
+            //        e.printStackTrace();
+            //        }
+//              }
 //        if (inMessage.isReply()) {
 //        System.out.println(inMessage);
 //        String reply = inMessage.getReplyToMessage().getText();
