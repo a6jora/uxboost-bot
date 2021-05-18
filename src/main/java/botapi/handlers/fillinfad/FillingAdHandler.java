@@ -22,6 +22,7 @@ public class FillingAdHandler implements InputMessageHandler {
     private UserAdCache userAdCache;
     private HashMap<String, ArrayList<String>> comments = new HashMap<>();
     private HashMap<String, Long> ads = new HashMap<>();
+    private ArrayList<Integer> banList = new ArrayList<>();
 
     public FillingAdHandler(UserAdCache userAdCache) {
         this.userAdCache = userAdCache;
@@ -59,7 +60,7 @@ public class FillingAdHandler implements InputMessageHandler {
                 replyToUser = new SendMessage(chatId,
                         "Ваше объявление:\n" + userAdCache.getUserAd(userId).toString() + "\nразмещено");
                 messageList.add(replyToUser);
-                messageList.add(sendAdToChannel(userAdCache.getUserAd(userId).toString(), chatId));
+                messageList.add(sendAdToChannel(userAdCache.getUserAd(userId).toString().trim(), chatId));
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_START);
                 replyToUser = new SendMessage(chatId, "Выберите команду:");
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
@@ -73,10 +74,39 @@ public class FillingAdHandler implements InputMessageHandler {
                 messageList = getComments(chatId);
                 replyToUser = new SendMessage(chatId, "Выберите команду:");
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
+                if (update.getCallbackQuery().getFrom().getId() == 442722914) {
+                    replyToUser.setReplyMarkup(getInlineAdminMessageButton());
+                }
+            } else if (callbackQuery.getData().equals("buttonBanHammer")) {
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_TO_BAN);
+
+                messageList.add(new SendMessage(chatId, "Введите id чата:"));
+                return messageList;
+            } else if (callbackQuery.getData().equals("buttonUnBanHammer")) {
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_TO_UNBAN);
+
+                messageList.add(new SendMessage(chatId, "Введите id чата:"));
+                return messageList;
+            } else if (callbackQuery.getData().equals("buttonBanList")) {
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+                String str ="Бан-лист:\n";
+                if (banList.isEmpty())
+                {
+                    str = "Бан-лист пуст";
+                }
+                for (int i :
+                        banList) {
+                    str+="- " +i + "\n";
+                }
+                messageList.add(new SendMessage(chatId, str));
+                return messageList;
             } else {
                 replyToUser = new SendMessage(chatId, "Выберите команду:");
 
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+            }
+            if (update.getCallbackQuery().getFrom().getId() == 442722914) {
+                replyToUser.setReplyMarkup(getInlineAdminMessageButton());
             }
             messageList.add(replyToUser);
             return messageList;
@@ -88,8 +118,8 @@ public class FillingAdHandler implements InputMessageHandler {
 
         if (inputMsg.isReply()) {
             System.out.println("=+++===" + inputMsg.getText());
-            String reply = inputMsg.getReplyToMessage().getText()+"\n";
-            System.out.println("\n+===" + reply+"****\n");
+            String reply = inputMsg.getReplyToMessage().getText();
+            System.out.println("\n+===" + reply + "****\n");
             try {
                 comments.get(reply).add(inputMsg.getText());
             } catch (Exception ex) {
@@ -104,14 +134,71 @@ public class FillingAdHandler implements InputMessageHandler {
         long chatId = inputMsg.getChatId();
 
 
-
         UserAd ad = userAdCache.getUserAd(userId);
         BotState botState = userAdCache.getUsersCurrentBotState(userId);
+        try {
 
+            for (int i :
+                    banList) {
+                if (i == update.getMessage().getChatId()) {
+                    messageList.add(new SendMessage(chatId, "у вас бан, обратитесь к админу"));
+                    return messageList;
+                }
+            }
+        }
+        catch (Exception e){
+            System.out.println("Косяк бан листа");
+        }
+        if (botState.equals(BotState.ASK_TO_BAN)) {
+            try {
 
+                int chatToBan = Integer.parseInt(update.getMessage().getText());
+                banList.add(chatToBan);
+                messageList.add(new SendMessage(chatId, "Пользователь с id: " + chatToBan + " добавлен в бан-лист"));
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+                botState = BotState.ASK_OPTION;
+            }
+            catch (Exception e){
+                messageList.add( new SendMessage(chatId,"Некорректный id"));
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+                botState = BotState.ASK_OPTION;
+            }
+        }
+        if (botState.equals(BotState.ASK_TO_UNBAN)) {
+            try {
+                int chatToBan = Integer.parseInt(update.getMessage().getText());
+
+                for (int i = 0; i < banList.size(); i++) {
+                    if (banList.get(i) == chatToBan) {
+                        banList.remove(i);
+                        i--;
+                    }
+                }
+                messageList.add(new SendMessage(chatId, "Пользователь с id: " + chatToBan + " удален из бан-листа"));
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+                botState = BotState.ASK_OPTION;
+            } catch (Exception ex){
+                messageList.add( new SendMessage(chatId,"Некорректный id"));
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+                botState = BotState.ASK_OPTION;
+            }
+
+        }
         if (botState.equals(BotState.ASK_OPTION)) {
+
             replyToUser = new SendMessage(chatId, "Выберите команду:");
             replyToUser.setReplyMarkup(getInlineAskMessageButton());
+            for (int i :
+                    banList) {
+                if (i == update.getMessage().getChatId()) {
+                    messageList.add(new SendMessage(chatId, "Вы добавлены в бан-лист"));
+                    return messageList;
+                }
+            }
+            System.out.println(update.getMessage().getFrom().getId());
+            if (update.getMessage().getChatId() == 442722914) {
+                replyToUser.setReplyMarkup(getInlineAdminMessageButton());
+            }
         }
         if (botState.equals(BotState.ASK_AD)) {
             replyToUser = new SendMessage(chatId, "Текст объявления");
@@ -183,6 +270,34 @@ public class FillingAdHandler implements InputMessageHandler {
         return inlineKeyboardMarkup;
     }
 
+    private InlineKeyboardMarkup getInlineAdminMessageButton() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton buttonAd = new InlineKeyboardButton().setText("Добавить Объявление");
+        InlineKeyboardButton buttonComment = new InlineKeyboardButton().setText("Комментарии");
+        buttonAd.setCallbackData("buttonAd");
+        buttonComment.setCallbackData("buttonComment");
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(buttonComment);
+        row1.add(buttonAd);
+
+        InlineKeyboardButton buttonBanlist = new InlineKeyboardButton().setText("Бан-лист");
+        InlineKeyboardButton buttonBanhammer = new InlineKeyboardButton().setText("Забанить");
+        InlineKeyboardButton buttonUnBanhammer = new InlineKeyboardButton().setText("Разбанить");
+        buttonBanlist.setCallbackData("buttonBanList");
+        buttonBanhammer.setCallbackData("buttonBanHammer");
+        buttonUnBanhammer.setCallbackData("buttonUnBanHammer");
+
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row2.add(buttonBanlist);
+        row2.add(buttonBanhammer);
+        row2.add(buttonUnBanhammer);
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        list.add(row1);
+        list.add(row2);
+        inlineKeyboardMarkup.setKeyboard(list);
+        return inlineKeyboardMarkup;
+    }
+
     private InlineKeyboardMarkup getInlineAskMessageButton() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton buttonAd = new InlineKeyboardButton().setText("Добавить Объявление");
@@ -207,9 +322,9 @@ public class FillingAdHandler implements InputMessageHandler {
         outMessageToChannel.setText(adText);
 
         comments.put(adText, new ArrayList<>());
-        System.out.println("===\n" + adText+"====\n");
+        System.out.println("===\n" + adText + "====\n");
         ads.put(adText, chatId);
-        System.out.println("ad is added:" + adText+" with" + chatId);
+        System.out.println("ad is added:" + adText + " with" + chatId);
         return outMessageToChannel;
     }
 
@@ -221,7 +336,7 @@ public class FillingAdHandler implements InputMessageHandler {
         try {
             for (Map.Entry<String, Long> adWithId :
                     ads.entrySet()) {
-                System.out.println("ad: "+ adWithId.getKey()+ " id: "+ adWithId.getValue());
+                System.out.println("ad: " + adWithId.getKey() + " id: " + adWithId.getValue());
                 if (adWithId.getValue().equals(chatId)) {
                     ArrayList<String> list = comments.get(adWithId.getKey());
                     StringBuilder row = new StringBuilder(adWithId.getKey());

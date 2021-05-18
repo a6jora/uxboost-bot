@@ -55,6 +55,8 @@ public class BotStateContext {
             case ASK_CONTACTS:
             case ASK_DEADLINE:
             case ASK_TO_POST:
+            case ASK_TO_BAN:
+            case ASK_TO_UNBAN:
                 return true;
             default:
                 return false;

@@ -11,7 +11,9 @@ public enum BotState {
     ASK_CONTACTS,
     ASK_DEADLINE,
     ASK_TO_POST,
-    ASK_TO_SEND
+    ASK_TO_SEND,
+    ASK_TO_BAN,
+    ASK_TO_UNBAN
 }
 // questions.add("1. Пожелания к респондентам и что хотите сделать на созвоне.");
 //         questions.add("2. Время, которое по вашему мнению нужно на интервью/опрос/тест — чтобы ваш респондент мог планировать свой график");
