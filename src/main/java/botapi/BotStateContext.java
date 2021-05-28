@@ -57,6 +57,7 @@ public class BotStateContext {
             case ASK_TO_POST:
             case ASK_TO_BAN:
             case ASK_TO_UNBAN:
+            case WAITING:
                 return true;
             default:
                 return false;

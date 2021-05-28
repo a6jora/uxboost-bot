@@ -16,13 +16,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Handler;
 
 public class FillingAdHandler implements InputMessageHandler {
     private UserAdCache userAdCache;
     private HashMap<String, ArrayList<String>> comments = new HashMap<>();
     private HashMap<String, Long> ads = new HashMap<>();
     private ArrayList<Integer> banList = new ArrayList<>();
+    private final String[] texts = {"Выберите команду:", "Вы добавлены в бан-лист. Обратитесь к администратору","Введите текст объявления:",
+            "Ваши пожелания к респондентам и вопросы к опросу:",
+            "Предпологаемая продолжительность опроса:","Временные слоты для проведения опроса:",
+            "Ограничения для респондентов (местоположение, возраст и т.п.)",
+            "Контакты — куда откликаться, где заполнять вашу анкету и пр.:","Дата, до которой объявление атуально:",""};
+
 
     public FillingAdHandler(UserAdCache userAdCache) {
         this.userAdCache = userAdCache;
@@ -62,17 +67,19 @@ public class FillingAdHandler implements InputMessageHandler {
                 messageList.add(replyToUser);
                 messageList.add(sendAdToChannel(userAdCache.getUserAd(userId).toString().trim(), chatId));
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_START);
-                replyToUser = new SendMessage(chatId, "Выберите команду:");
+                replyToUser = new SendMessage(chatId, texts[0]);
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
 
             } else if (callbackQuery.getData().equals("buttonAd")) {
 
-                replyToUser = new SendMessage(chatId, "Текст объявления");
+                replyToUser = new SendMessage(chatId, texts[2]);
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_GLADS);
+                messageList.add(replyToUser);
+                return messageList;
             } else if (callbackQuery.getData().equals("buttonComment")) {
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
                 messageList = getComments(chatId);
-                replyToUser = new SendMessage(chatId, "Выберите команду:");
+                replyToUser = new SendMessage(chatId, texts[0]);
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
                 if (update.getCallbackQuery().getFrom().getId() == 442722914) {
                     replyToUser.setReplyMarkup(getInlineAdminMessageButton());
@@ -101,9 +108,10 @@ public class FillingAdHandler implements InputMessageHandler {
                 messageList.add(new SendMessage(chatId, str));
                 return messageList;
             } else {
-                replyToUser = new SendMessage(chatId, "Выберите команду:");
+                replyToUser = new SendMessage(chatId, texts[0]);
 
-                userAdCache.setUserCurrentBotState(userId, BotState.ASK_OPTION);
+                userAdCache.setUserCurrentBotState(userId, BotState.ASK_START);
+                replyToUser.setReplyMarkup(getInlineAskMessageButton());
             }
             if (update.getCallbackQuery().getFrom().getId() == 442722914) {
                 replyToUser.setReplyMarkup(getInlineAdminMessageButton());
@@ -117,9 +125,9 @@ public class FillingAdHandler implements InputMessageHandler {
 
 
         if (inputMsg.isReply()) {
-            System.out.println("=+++===" + inputMsg.getText());
+
             String reply = inputMsg.getReplyToMessage().getText();
-            System.out.println("\n+===" + reply + "****\n");
+
             try {
                 comments.get(reply).add(inputMsg.getText());
             } catch (Exception ex) {
@@ -141,7 +149,7 @@ public class FillingAdHandler implements InputMessageHandler {
             for (int i :
                     banList) {
                 if (i == update.getMessage().getChatId()) {
-                    messageList.add(new SendMessage(chatId, "у вас бан, обратитесь к админу"));
+                    messageList.add(new SendMessage(chatId, texts[1]));
                     return messageList;
                 }
             }
@@ -186,12 +194,12 @@ public class FillingAdHandler implements InputMessageHandler {
         }
         if (botState.equals(BotState.ASK_OPTION)) {
 
-            replyToUser = new SendMessage(chatId, "Выберите команду:");
+            replyToUser = new SendMessage(chatId, texts[0]);
             replyToUser.setReplyMarkup(getInlineAskMessageButton());
             for (int i :
                     banList) {
                 if (i == update.getMessage().getChatId()) {
-                    messageList.add(new SendMessage(chatId, "Вы добавлены в бан-лист"));
+                    messageList.add(new SendMessage(chatId, texts[1]));
                     return messageList;
                 }
             }
@@ -201,42 +209,42 @@ public class FillingAdHandler implements InputMessageHandler {
             }
         }
         if (botState.equals(BotState.ASK_AD)) {
-            replyToUser = new SendMessage(chatId, "Текст объявления");
+            replyToUser = new SendMessage(chatId, texts[2]);
 
             userAdCache.setUserCurrentBotState(userId, BotState.ASK_GLADS);
         }
         if (botState.equals(BotState.ASK_GLADS)) {
-            replyToUser = new SendMessage(chatId, "Пожелания к респондентам и что хотите сделать на созвоне");
+            replyToUser = new SendMessage(chatId, texts[3]);
             ad.setAdText(inputMsg.getText());
             userAdCache.setUserCurrentBotState(userId, BotState.ASK_TIME_FOR);
         }
         if (botState.equals(BotState.ASK_TIME_FOR)) {
             replyToUser = new SendMessage(chatId,
-                    "Время, которое по вашему мнению нужно на интервью/опрос/тест — чтобы ваш респондент мог планировать свой график");
+                    texts[4]);
             ad.setGlads(inputMsg.getText());
             userAdCache.setUserCurrentBotState(userId, BotState.ASK_TIME_SLOTS);
         }
         if (botState.equals(BotState.ASK_TIME_SLOTS)) {
             replyToUser = new SendMessage(chatId,
-                    "Временные слоты в которые хотите провести созвон — чтобы другим участникам сразу было легче ориентироваться");
+                    texts[5]);
             ad.setTimeFor(inputMsg.getText());
             userAdCache.setUserCurrentBotState(userId, BotState.ASK_REST);
         }
         if (botState.equals(BotState.ASK_REST)) {
             replyToUser = new SendMessage(chatId,
-                    "Если для вас важно гео, или есть другие ограничения — не забудьте указать");
+                    texts[6]);
             ad.setTimeSlots(inputMsg.getText());
             userAdCache.setUserCurrentBotState(userId, BotState.ASK_CONTACTS);
         }
         if (botState.equals(BotState.ASK_CONTACTS)) {
             replyToUser = new SendMessage(chatId,
-                    "Контакты — куда откликаться, где заполнять вашу анкету и пр.");
+                    texts[7]);
             ad.setRest(inputMsg.getText());
             userAdCache.setUserCurrentBotState(userId, BotState.ASK_DEADLINE);
         }
         if (botState.equals(BotState.ASK_DEADLINE)) {
             replyToUser = new SendMessage(chatId,
-                    "До какого числа актуально");
+                    texts[8]);
             ad.setContacts(inputMsg.getText());
             userAdCache.setUserCurrentBotState(userId, BotState.ASK_TO_POST);
         }
@@ -245,9 +253,13 @@ public class FillingAdHandler implements InputMessageHandler {
             replyToUser = new SendMessage(chatId,
                     "Ваше объявление:\n" + userAdCache.getUserAd(userId).toString() + "\nРазместить?");
             replyToUser.setReplyMarkup(getInlineSendMessageButton());
-
+            userAdCache.setUserCurrentBotState(userId, BotState.WAITING);
         }
-
+        if (botState.equals(BotState.WAITING)) {
+            replyToUser = new SendMessage(chatId,
+                    "Ваше объявление:\n" + userAdCache.getUserAd(userId).toString() + "\nРазместить?");
+            replyToUser.setReplyMarkup(getInlineSendMessageButton());
+        }
         userAdCache.saveUserAd(userId, ad);
         messageList.add(replyToUser);
         return messageList;
