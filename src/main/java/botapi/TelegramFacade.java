@@ -25,7 +25,6 @@ public class TelegramFacade {
             messageArrayList = handleInputMessage(update);
         }
 
-        System.out.println("message HandleUpdate");
 
         return messageArrayList;
     }
@@ -33,7 +32,6 @@ public class TelegramFacade {
     private ArrayList<SendMessage> handleInputMessage(Update update) {
         ArrayList<SendMessage> messagesList = new ArrayList<>();
         Message message = update.getMessage();
-        System.out.println("message HandleInput");
         String inputMsg = "null";
         int userId ;
         if (update.hasCallbackQuery()){
@@ -52,7 +50,6 @@ public class TelegramFacade {
                 break;
             case "/ad":
                 botState = BotState.ASK_AD;
-                System.out.println("ad added");
                 break;
             default:
                 botState = userAdCache.getUsersCurrentBotState(userId);

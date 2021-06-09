@@ -131,9 +131,8 @@ public class FillingAdHandler implements InputMessageHandler {
             try {
                 comments.get(reply).add(inputMsg.getText());
             } catch (Exception ex) {
-                System.out.println("didnt work");
+
             }
-            System.out.println("comment: " + inputMsg.getText() + " to: " + reply + " is added");
             replyToUser = new SendMessage(ads.get(reply), inputMsg.getText());
             messageList.add(replyToUser);
             return messageList;
@@ -155,7 +154,6 @@ public class FillingAdHandler implements InputMessageHandler {
             }
         }
         catch (Exception e){
-            System.out.println("Косяк бан листа");
         }
         if (botState.equals(BotState.ASK_TO_BAN)) {
             try {
@@ -203,7 +201,6 @@ public class FillingAdHandler implements InputMessageHandler {
                     return messageList;
                 }
             }
-            System.out.println(update.getMessage().getFrom().getId());
             if (update.getMessage().getChatId() == 442722914) {
                 replyToUser.setReplyMarkup(getInlineAdminMessageButton());
             }
@@ -334,28 +331,23 @@ public class FillingAdHandler implements InputMessageHandler {
         outMessageToChannel.setText(adText);
 
         comments.put(adText, new ArrayList<>());
-        System.out.println("===\n" + adText + "====\n");
         ads.put(adText, chatId);
-        System.out.println("ad is added:" + adText + " with" + chatId);
         return outMessageToChannel;
     }
 
     private ArrayList<SendMessage> getComments(long chatId) {
         ArrayList<SendMessage> messages = new ArrayList<>();
-        System.out.println("problem part");
         SendMessage outMessage = new SendMessage();
         outMessage.setChatId(chatId);
         try {
             for (Map.Entry<String, Long> adWithId :
                     ads.entrySet()) {
-                System.out.println("ad: " + adWithId.getKey() + " id: " + adWithId.getValue());
                 if (adWithId.getValue().equals(chatId)) {
                     ArrayList<String> list = comments.get(adWithId.getKey());
                     StringBuilder row = new StringBuilder(adWithId.getKey());
                     row.append(":");
                     for (String comment :
                             list) {
-                        System.out.println(comment);
                         row.append("\n-");
                         row.append(comment);
                     }
