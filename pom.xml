@@ -27,9 +27,7 @@
                         </manifest>
                     </archive>
                     <classesDirectory>src</classesDirectory>
-                    <excludes>
-                        <exclude>App</exclude>
-                    </excludes>
+
                 </configuration>
             </plugin>
         </plugins>
