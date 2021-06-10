@@ -11,13 +11,5 @@ forwardDate=1619096529, text='123123132', entities=null, captionEntities=null, a
 if (inMessage.getReplyToMessage().getText().equals("123123132")) {
 
 
-<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
+
 }
