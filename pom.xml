@@ -19,12 +19,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.1.1</version>
+
                 <configuration>
                     <archive>
                         <manifest>
                             <mainClass>App</mainClass>
                         </manifest>
                     </archive>
+                    <classesDirectory>src</classesDirectory>
+                    <excludes>
+                        <exclude>App</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
