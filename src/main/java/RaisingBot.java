@@ -30,6 +30,17 @@ public class RaisingBot extends TelegramLongPollingBot {
 
         try {
 
+            System.out.println(update);
+            try{
+                System.out.println(update.getMessage().getFrom().getUserName());
+            } catch (Exception e){
+                System.out.println("message error");
+            }
+            try{
+                System.out.println(update.getCallbackQuery().getFrom().getUserName());
+            } catch (Exception e){
+                System.out.println("callbackquery error");
+            }
             for (SendMessage message :
                     replyMessageToUser) {
                 execute(message);
