@@ -81,7 +81,7 @@ public class FillingAdHandler implements InputMessageHandler {
                 messageList = getComments(chatId);
                 replyToUser = new SendMessage(chatId, texts[0]);
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
-                if (update.getCallbackQuery().getFrom().getUserName().equals("gusar1991")) {
+                if (update.getCallbackQuery().getFrom().getUserName().equals("Stlts")) {
                     replyToUser.setReplyMarkup(getInlineAdminMessageButton());
                 }
             } else if (callbackQuery.getData().equals("buttonBanHammer")) {
@@ -113,7 +113,7 @@ public class FillingAdHandler implements InputMessageHandler {
                 userAdCache.setUserCurrentBotState(userId, BotState.ASK_START);
                 replyToUser.setReplyMarkup(getInlineAskMessageButton());
             }
-            if (update.getCallbackQuery().getFrom().getUserName().equals("gusar1991")) {
+            if (update.getCallbackQuery().getFrom().getUserName().equals("Stlts")) {
                 replyToUser.setReplyMarkup(getInlineAdminMessageButton());
             }
             messageList.add(replyToUser);
@@ -202,7 +202,7 @@ public class FillingAdHandler implements InputMessageHandler {
                     return messageList;
                 }
             }
-            if (update.getMessage().getFrom().getUserName().equals("gusar1991")) {
+            if (update.getMessage().getFrom().getUserName().equals("Stlts")) {
                 replyToUser.setReplyMarkup(getInlineAdminMessageButton());
             }
         }
