@@ -20,7 +20,8 @@ public class RaisingBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "1781189373:AAEGPKeKuP1jdYROBhDxQ8zHsSEV7ZC8Wao";
+        return "1886341170:AAGRzwrLwGn5aHWN_Qx1S1HdBZLK8teig00";
+//        return "1781189373:AAEGPKeKuP1jdYROBhDxQ8zHsSEV7ZC8Wao";
     }
 
     @Override

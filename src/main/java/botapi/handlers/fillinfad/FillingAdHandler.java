@@ -18,8 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 public class FillingAdHandler implements InputMessageHandler {
-    private String adminName = "Stlts";
-    private String mainChat = "-1001256495856";
+    private String adminName = "dreinder";
+//    private String adminName = "Stlts";
+    private String mainChat = "-1001210692529";
     private UserAdCache userAdCache;
     private HashMap<String, ArrayList<String>> comments = new HashMap<>();
     private HashMap<String, User> ads = new HashMap<>();
@@ -142,7 +143,7 @@ public class FillingAdHandler implements InputMessageHandler {
 
 
         if (inputMsg.isReply()) {
-
+            System.out.println("relay CHEK!");
             String reply = inputMsg.getReplyToMessage().getText();
 
             try {
